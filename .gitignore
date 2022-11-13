@@ -14,3 +14,4 @@ obj
 /ltmain.sh
 /config.guess
 /config.sub
+*.class

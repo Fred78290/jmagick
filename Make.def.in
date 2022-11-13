@@ -36,9 +36,6 @@ JAVA = @JAVA@
 # The Java compiler to use.
 JAVAC = @JAVAC@
 
-# The Java header file generator.
-JAVAH = @JAVAH@
-
 # The Java archive maintainer
 JAR = @JAR@
 

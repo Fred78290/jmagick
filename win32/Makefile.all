@@ -22,7 +22,7 @@
 # -- Copy the 'jmagick.dll' to MAGICK_HOME (e.g. 'MAGICBIN' below).
 # -- Copy the 'jmagick.jar' to JRE's 'lib/ext'.
 # -- Just always rebuilt ALL, it's fast and somewhat fixed anyway!
-# -- Run 'javac', 'jar', 'javah' respectively prior to 'cl', 'link'.
+# -- Run 'javac', 'jar', respectively prior to 'cl', 'link'.
 # -- Disabled warnings as it was kind of noisy.
 # -- Setup VC++ environment "path" for 'cl', 'link' and 'lib'.
 # -- Created manually 'obj\magick', 'lib' place holders.
@@ -197,14 +197,14 @@ DIRS :
 
 
 HEADERS :    $(GENDIR)
-    "$(JDKBIN)\javah" -d $(GENDIR) -classpath $(CLSDIR) -jni magick.Magick
-    "$(JDKBIN)\javah" -d $(GENDIR) -classpath $(CLSDIR) -jni magick.DrawInfo
-    "$(JDKBIN)\javah" -d $(GENDIR) -classpath $(CLSDIR) -jni magick.ImageInfo
-    "$(JDKBIN)\javah" -d $(GENDIR) -classpath $(CLSDIR) -jni magick.MagickImage
-    "$(JDKBIN)\javah" -d $(GENDIR) -classpath $(CLSDIR) -jni magick.MagickInfo
-    "$(JDKBIN)\javah" -d $(GENDIR) -classpath $(CLSDIR) -jni magick.MontageInfo
-    "$(JDKBIN)\javah" -d $(GENDIR) -classpath $(CLSDIR) -jni magick.PixelPacket
-    "$(JDKBIN)\javah" -d $(GENDIR) -classpath $(CLSDIR) -jni magick.QuantizeInfo
+    "$(JDKBIN)\javac" -h $(GENDIR) -classpath $(CLSDIR) -sourcepath $(SRCDIR) Magick.java
+    "$(JDKBIN)\javac" -h $(GENDIR) -classpath $(CLSDIR) -sourcepath $(SRCDIR) DrawInfo.java
+    "$(JDKBIN)\javac" -h $(GENDIR) -classpath $(CLSDIR) -sourcepath $(SRCDIR) ImageInfo.java
+    "$(JDKBIN)\javac" -h $(GENDIR) -classpath $(CLSDIR) -sourcepath $(SRCDIR) MagickImage.java
+    "$(JDKBIN)\javac" -h $(GENDIR) -classpath $(CLSDIR) -sourcepath $(SRCDIR) MagickInfo.java
+    "$(JDKBIN)\javac" -h $(GENDIR) -classpath $(CLSDIR) -sourcepath $(SRCDIR) MontageInfo.java
+    "$(JDKBIN)\javac" -h $(GENDIR) -classpath $(CLSDIR) -sourcepath $(SRCDIR) PixelPacket.java
+    "$(JDKBIN)\javac" -h $(GENDIR) -classpath $(CLSDIR) -sourcepath $(SRCDIR) QuantizeInfo.java
 
 CLASSES :    $(SRCDIR)\*.java $(SRCDIR)\util\*.java
     "$(JDKBIN)\javac" -target 1.5 -d $(CLSDIR) -classpath $(SRCDIR) -sourcepath $(SRCDIR) $(?)

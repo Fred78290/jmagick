@@ -50,18 +50,11 @@ dnl Make sure we use -dynamiclib parameter for OS X Leopard
 *darwin*)
 	LIBTOOL_LINK_FLAG='-module'
 	;;
-*-*-cygwin|*-*-mingw32)
-	SHARED_LDFLAGS="-shared"
-	SHARED_LIB_EXT=.dll
-	JFLAGS="-Xlint:deprecation -Xlint:unchecked"
-	JAVA_HOME=$(cygpath -C UTF8 "$(cygpath -C UTF8 -d "${JAVA_HOME}")")
-	MAGICK_HOME=$(cygpath -C UTF-8 "$(cygpath -C UTF-8 -d "$(dirname "$(which convert)")")")
-	;;
 esac
 
 dnl By default, we look at /usr/local. Need to explicitly do this because
 dnl some compilers don't.
-LDFLAGS="${LDFLAGS} -L/usr/local/${LIB}"
+LDFLAGS="${LDFLAGS} -L/usr/local/lib"
 CFLAGS="${CFLAGS} -I/usr/local/include"
 
 dnl Get the full path of the source directory.
@@ -230,13 +223,6 @@ else
 fi
 AC_SUBST(JAVAC)
 
-dnl Determine if we have the Java header file generator
-AC_PATH_PROG(JAVAH, javah, not_found)
-if test ${JAVAH} = not_found; then
-	AC_MSG_ERROR('No Java header generator (javah) found')
-fi
-AC_SUBST(JAVAH)
-
 dnl Determine if we have jar
 AC_PATH_PROG(JAR, jar, not_found)
 if test ${JAR} = not_found; then
@@ -274,46 +260,25 @@ fi
 dnl Check if ImageMagick home specified
 AC_ARG_WITH(magick-home, --with-magick-home=path home directory of ImageMagick,
             MAGICK_HOME=${withval})
-for MPATH in ${MAGICK_HOME} /usr /usr/local /usr/local/ImageMagick /usr/local/ImageMagick-${VER_MAJOR}.${VER_MINOR}.${VER_MICRO} ; do
+for MPATH in /usr /usr/local /usr/local/ImageMagick /usr/local/ImageMagick-${VER_MAJOR}.${VER_MINOR}.${VER_MICRO} ${MAGICK_HOME} ; do
 	# Location before IM 6.3.8.something
-	if  test -f "${MPATH}/include/magick/api.h" ; then
+	if  test -f ${MPATH}/include/magick/api.h  ; then
 		MAGICK_LIB_PATH=${MPATH}/lib
-		case "$target" in
-			*-*-cygwin|*-*-mingw32)
-				MAGICK_LIBS="-L${MPATH}/lib -lCORE_RL_magick_"
-				;;
-			*)
-				MAGICK_LIBS="-L${MPATH}/lib -lMagick"
-				;;
-		esac
+		MAGICK_LIBS="-L${MPATH}/lib -lMagick"
 		MAGICK_INCLUDES=-I${MPATH}/include
 		MAGICK_REALHOME=${MPATH}
 	fi
 	# Location after IM 6.3.8.something
-	if  test -f "${MPATH}/include/ImageMagick/magick/api.h" ; then
+	if  test -f ${MPATH}/include/ImageMagick/magick/api.h  ; then
 		MAGICK_LIB_PATH=${MPATH}/lib
-		case "$target" in
-			*-*-cygwin|*-*-mingw32)
-				MAGICK_LIBS="-L${MPATH}/lib -lCORE_RL_magick_"
-				;;
-			*)
-				MAGICK_LIBS="-L${MPATH}/lib -lMagick"
-				;;
-		esac
+		MAGICK_LIBS="-L${MPATH}/lib -lMagick"
 		MAGICK_INCLUDES=-I${MPATH}/include/ImageMagick
 		MAGICK_REALHOME=${MPATH}
 	fi
   # Location after Ubuntu 16.04
-	if  test -f "${MPATH}/include/ImageMagick-6/magick/api.h" ; then
+	if  test -f ${MPATH}/include/ImageMagick-6/magick/api.h  ; then
 		MAGICK_LIB_PATH=${MPATH}/lib
-		case "$target" in
-			*-*-cygwin|*-*-mingw32)
-				MAGICK_LIBS="-L${MPATH}/lib -lCORE_RL_magick_"
-				;;
-			*)
-				MAGICK_LIBS="-L${MPATH}/lib -lMagick"
-				;;
-		esac
+		MAGICK_LIBS="-L${MPATH}/lib -lMagick"
 		MAGICK_INCLUDES=-I${MPATH}/include/ImageMagick-6
 		MAGICK_REALHOME=${MPATH}
 	fi
@@ -323,7 +288,7 @@ dnl Check if MagickCore-conf exists
 OLDPATH=${PATH}
 # MagickCore-config isn't installed in /usr/bin in Ubuntu 16.04+ due
 # to changes in libmagickcore-dev package.
-PATH=${MAGICK_REALHOME}/bin:/usr/${LIB}/${build_os}/ImageMagick-${VER_MAJOR}.${VER_MINOR}.${VER_MICRO}-Q64HDRI/bin:/usr/${LIB}/${build_os}/ImageMagick-${VER_MAJOR}.${VER_MINOR}.${VER_MICRO}-Q64/bin:/usr/${LIB}/${build_os}/ImageMagick-${VER_MAJOR}.${VER_MINOR}.${VER_MICRO}-Q32HDRI/bin:/usr/${LIB}/${build_os}/ImageMagick-${VER_MAJOR}.${VER_MINOR}.${VER_MICRO}-Q32/bin:/usr/${LIB}/${build_os}/ImageMagick-${VER_MAJOR}.${VER_MINOR}.${VER_MICRO}-Q16HDRI/bin:/usr/${LIB}/${build_os}/ImageMagick-${VER_MAJOR}.${VER_MINOR}.${VER_MICRO}-Q16/bin:/usr/${LIB}/${build_os}/ImageMagick-${VER_MAJOR}.${VER_MINOR}.${VER_MICRO}-Q8HDRI/bin:/usr/${LIB}/${build_os}/ImageMagick-${VER_MAJOR}.${VER_MINOR}.${VER_MICRO}-Q8/bin:/usr/${LIB}/${build_os}/ImageMagick-${VER_MAJOR}.${VER_MINOR}.${VER_MICRO}/bin:${PATH}
+PATH=${MAGICK_REALHOME}/bin:/usr/lib/x86_64-linux-gnu/ImageMagick-${VER_MAJOR}.${VER_MINOR}.${VER_MICRO}/bin-Q16:${PATH}
 export PATH
 AC_PATH_PROG(MAGICKCONF, MagickCore-config, not_found)
 PATH=${OLDPATH}
@@ -332,10 +297,8 @@ dnl Added $MAGICK_LIB_PATH and $MAGICK_INCLUDES here because of
 dnl a possible bug in Magick-conf for ImageMagick 5.4.6
 if (test $MAGICKCONF != not_found); then
 	LDFLAGS="${LDFLAGS} `$MAGICKCONF --ldflags`"
-	MAGICK_LIBS="`$MAGICKCONF --libs`"
-	MAGICK_INCLUDES=`$MAGICKCONF --cppflags`
-	MAGICK_LIB_PATH=`$MAGICKCONF --exec-prefix`/lib
-	MAGICK_REALHOME=`$MAGICKCONF --exec-prefix`
+	MAGICK_LIBS=`$MAGICKCONF --libs`
+	MAGICK_INCLUDES="`$MAGICKCONF --cppflags`"
 fi
 
 dnl Check if ImageMagick library path specified
@@ -361,19 +324,19 @@ AC_CHECK_HEADER(magick/api.h, HAVE_MAGICK_HEADER=yes, HAVE_MAGICK_HEADER=no)
 if test ${HAVE_MAGICK_HEADER} = no ; then
 	AC_MSG_ERROR('Unable to find ImageMagick header files')
 fi
-
-dnl Check for the ImageMagick library
-OLD_LDFLAGS=${LDFLAGS}
-if test -n "${MAGICK_LIBS}"; then
-	LDFLAGS="${MAGICK_LIBS} ${LDFLAGS}"
-fi
-AC_CHECK_LIB(Magick, ConstituteImage,
-             HAVE_MAGICK_LIB=yes, HAVE_MAGICK_LIB=no)
-if test ${HAVE_MAGICK_LIB} = no; then
-	AC_MSG_ERROR('Unable to find ImageMagick library')
-fi
 CPPFLAGS=${OLD_CPPFLAGS}
-LDFLAGS=${OLD_LDFLAGS}
+
+#dnl Check for the ImageMagick library
+#OLD_LDFLAGS=${LDFLAGS}
+#if test -n "${MAGICK_LIBS}"; then
+#	LDFLAGS="${MAGICK_LIBS} ${LDFLAGS}"
+#fi
+#AC_CHECK_LIB(Magick, GetImageMagick,
+#             HAVE_MAGICK_LIB=yes, HAVE_MAGICK_LIB=no)
+#if test ${HAVE_MAGICK_LIB} = no; then
+#	AC_MSG_ERROR('Unable to find ImageMagick library')
+#fi
+#LDFLAGS=${OLD_LDFLAGS}
 
 
 
